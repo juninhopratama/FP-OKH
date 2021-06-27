@@ -11,6 +11,8 @@ import java.util.Collections;
 
 public class CourseData {
     String fileInput;
+    int[][] conflictMatrix;
+    int jumlahCourse;
     ArrayList<String> course = new ArrayList<String>();
     ArrayList<String> student = new ArrayList<String>();
 
@@ -41,11 +43,11 @@ public class CourseData {
 
     public int getNumberOfCourses() throws IOException {
         // menghitung banyak course
-        int jumlahCourse = course.size();
-        return jumlahCourse;
+        this.jumlahCourse = course.size();
+        return this.jumlahCourse;
     }
 
-    public ArrayList<String> getStudentData(){
+    public ArrayList<String> getStudentData() {
         return this.student;
     }
 
@@ -69,15 +71,52 @@ public class CourseData {
                 }
             }
         }
+        this.conflictMatrix = conflictMatrix;
+        return this.conflictMatrix;
+    }
+
+    public void showConflictMatrix(int matrixlength) throws IOException {
 
         // nunjukkin conflictMatrix:
         System.out.println("Conflict Matrix: ");
-        for (int i = 1; i < 10; i++) {
-            for (int j = 1; j < 10; j++) {
-                System.out.print(conflictMatrix[i][j] + " ");
+        for (int i = 0; i < matrixlength; i++){
+            if(i==0){
+                System.out.print(i + "   ");
+            } else if(i<10){
+                System.out.print(i + "  ");
+            } else if(i<100){
+                System.out.print(i + " ");
+            } else{
+                System.out.print(i + " ");
+            }
+        }
+        System.out.println("");
+        for (int i = 1; i < matrixlength; i++) {
+            if(i<10){
+                System.out.print(i + "   ");
+            } else if(i<100){
+                System.out.print(i + "  ");
+            } else {
+                System.out.print(i + " ");
+            }
+
+            for (int j = 1; j < matrixlength; j++) {
+                if(i==j && j<100){
+                    System.out.print("x  ");
+                } else if(i==j && j>=100){
+                    System.out.print("x   ");
+                }
+                else if(j<100){
+                    System.out.print(conflictMatrix[i][j] + "  ");
+                } else{
+                    System.out.print(conflictMatrix[i][j] + "   ");
+                }
+
             }
             System.out.println();
         }
+
+
 
         // itung density:
         double densityCounter = 0;
@@ -93,44 +132,13 @@ public class CourseData {
         System.out.println("");
         System.out.println("Density= " + density);
 
-        return conflictMatrix;
+
     }
 
-    public int[][] getWeightedClashMatrix() throws IOException {
-        int[][] weightedClashMatrix = new int[getNumberOfCourses() + 1][getNumberOfCourses() + 1];
 
-        // membuat weightedClashMatrix
-        for (String s : student) {
-            // membaca data course setiap student dan menyimpannya ke dalam array
-            // courseTaken
-            String[] courseTaken = s.split(" ");
-            if (courseTaken.length > 1) {
-                for (int i = 0; i < courseTaken.length; i++) {
-                    for (int j = 0; j < courseTaken.length; j++) {
-                        if (i != j) {
-                            int course1 = Integer.parseInt(courseTaken[i]);
-                            int course2 = Integer.parseInt(courseTaken[j]);
-                            weightedClashMatrix[course1][course2] += 1;
-                        }
-                    }
-                }
-            }
-        }
-
-        System.out.println("Weighted Clash Matrix: ");
-        for (int i = 1; i < 10; i++) {
-            for (int j = 1; j < 10; j++) {
-                System.out.print(weightedClashMatrix[i][j] + " ");
-            }
-            System.out.println();
-        }
-
-        return weightedClashMatrix;
-    }
-
-    public static int[][] sortByDegree(int[][] conflictMatrix, int jumlahCourse) {
+    public int[][] sortByDegree() {
         // membuat tabel untuk menyimpan course&degree
-        int[][] courseDegree = new int[jumlahCourse][2];
+        int[][] courseDegree = new int[this.jumlahCourse][2];
         int degree = 0;
 
         // menyimpan semua course ke kolom pertama
@@ -139,15 +147,18 @@ public class CourseData {
         }
 
         // mengecek nilai degree:
-        for (int i = 0; i < jumlahCourse; i++) {
-            for (int j = 0; j < jumlahCourse; j++) {
-                if (conflictMatrix[i][j] > 0) {
+        for (int i = 1; i <= this.jumlahCourse; i++) {
+            degree = 0;
+            for (int j = 1; j <= this.jumlahCourse; j++) {
+                if (this.conflictMatrix[i][j] > 0) {
                     degree++;
                 }
-                courseDegree[i][1] = degree;
+                courseDegree[i-1][1] = degree;
             }
-            degree = 0;
+
         }
+
+
 
         // sort melihat largest degree (ascending):
         Arrays.sort(courseDegree, Comparator.comparingDouble(o -> o[1]));
@@ -161,39 +172,5 @@ public class CourseData {
         }
         return courseDegree;
     }
-
-//    public static int[][] sortByWeightedDegree(int[][] weightedClashMatrix, int jumlahCourse) {
-//        // membuat tabel untuk menyimpan course&degree
-//        int[][] weightedCourseDegree = new int[jumlahCourse][2];
-//        int degree = 0;
-//
-//        // menyimpan semua course ke kolom pertama
-//        for (int i = 0; i < weightedCourseDegree.length; i++) {
-//            weightedCourseDegree[i][0] = i + 1;
-//        }
-//
-//        // mengecek nilai degree:
-//        for (int i = 0; i < jumlahCourse; i++) {
-//            for (int j = 0; j < jumlahCourse; j++) {
-//                if (weightedClashMatrix[i][j] > 0) {
-//                    degree += weightedClashMatrix[i][j];
-//                }
-//                weightedCourseDegree[i][1] = degree;
-//            }
-//            degree = 0;
-//        }
-//
-//        // sort melihat largest degree (ascending):
-//        Arrays.sort(weightedCourseDegree, Comparator.comparingDouble(o -> o[1]));
-//        // reverse menjadi descending:
-//        Collections.reverse(Arrays.asList(weightedCourseDegree));
-//
-//        System.out.print("");
-//        System.out.println("Largest Weighted Degree Sorting: ");
-//        for (int i = 0; i <= 10; i++) {
-//            System.out.println("Weighted degree dari course " + weightedCourseDegree[i][0] + " adalah " + weightedCourseDegree[i][1]);
-//        }
-//
-//        return weightedCourseDegree;
-//    }
 }
+

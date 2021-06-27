@@ -4,95 +4,77 @@ public class ExamScheduling
 {
     String fileInput;
     int[][] conflictMatrix;
+    int[][] courseSorted;
     int[] timeslot;
+    int jumlahCourse;
+
     int  indexts;
 
-    public ExamScheduling(String file, int[][] conflictMatrix, int totalExams)
+    public ExamScheduling(int[][] conflictMatrix, int[][] courseSorted)
     {
         this.conflictMatrix = conflictMatrix;
+        this.courseSorted = courseSorted;
     }
 
     public static boolean isTimeslotAvailableSorted(int jumlahCourse, int indexts, int[][] courseSorted, int[][] conflictMatrix, int[] timeslot)
     {
-        for(int i = 0; i < courseSorted.length; i++)
+        for(int i = 1; i <= courseSorted.length; i++)
         {
-            if(conflictMatrix[courseSorted[jumlahCourse][0]-1][i] != 0 && timeslot[i] == indexts)
+            if(conflictMatrix[courseSorted[jumlahCourse][0]][i] != 0 && timeslot[i] == indexts)
                 return false;
         }
         return true;
     }
 
-    public int[] scheduleByDegree(int[][] courseSorted, int jumlahCourse)
+    public int[] scheduleByDegree()
     {
-        this.timeslot = new int[jumlahCourse];
+        int[] timeslot = new int[courseSorted.length+1];
         indexts = 1;
 
-        for(int i= 0; i < courseSorted.length; i++)
+        for(int i= 1; i <= courseSorted.length; i++)
         {
-            this.timeslot[i] = 0;
+            timeslot[i] = 0;
         }
 
-        for(jumlahCourse = 0; jumlahCourse < courseSorted.length; jumlahCourse++)
+        for(int i = 0; i < courseSorted.length; i++)
         {
-            for (int indexts = 1; indexts <= indexts; indexts++)
+            for (int j = 1; j <= j; j++)
             {
-                if(isTimeslotAvailableSorted(jumlahCourse, indexts, courseSorted, conflictMatrix, this.timeslot))
+                if(isTimeslotAvailableSorted(i, j, courseSorted, conflictMatrix, timeslot))
                 {
-                    this.timeslot[courseSorted[jumlahCourse][0]-1] = indexts;
+                    timeslot[courseSorted[i][0]] = j;
                     break;
                 }
             }
         }
         System.out.println("Timeslot Scheduling: ");
-        for (int i = 0; i < jumlahCourse; i++)
-            System.out.println("Timeslot untuk course "+ (i+1) + " adalah timeslot " + timeslot[i]);
-        return this.timeslot;
+        for (int i = 1; i < timeslot.length; i++)
+            //System.out.println("Timeslot untuk course "+ i + " adalah timeslot " + timeslot[i]);
+            System.out.println(i + " " + timeslot[i]);
+        this.timeslot = timeslot;
+        return timeslot;
     }
 
-//    public int[] scheduleByWeightedDegree(int[][] sortedWeightedCourse, int jumlahCourse)
-//    {
-//        this.timeslot = new int[jumlahCourse];
-//        indexts = 1;
-//
-//        for(int i= 0; i < sortedWeightedCourse.length; i++)
-//        {
-//            this.timeslot[i] = 0;
-//        }
-//
-//        for(jumlahCourse = 0; jumlahCourse < sortedWeightedCourse.length; jumlahCourse++)
-//        {
-//            for (int indexts = 1; indexts <= indexts; indexts++)
-//            {
-//                if(isTimeslotAvailableSorted(jumlahCourse, indexts, sortedWeightedCourse, conflictMatrix, this.timeslot))
-//                {
-//                    this.timeslot[sortedWeightedCourse[jumlahCourse][0]-1] = indexts;
-//                    break;
-//                }
-//            }
-//        }
-//        System.out.println("Timeslot Scheduling: ");
-//        for (int i = 0; i < jumlahCourse; i++)
-//            System.out.println("Timeslot untuk course "+ (i+1) + " adalah timeslot " + timeslot[i]);
-//        return this.timeslot;
-//    }
-
-    public void getTimeslot()
+    public int getTimeslot()
     {
         // sort melihat largest degree (ascending):
-        Arrays.sort(timeslot);
-        System.out.print("");
-        System.out.println("Minimal Timeslots: "+timeslot[timeslot.length-1]);
-
-
+        int[] timeslotCount = new int[this.timeslot.length];
+        for(int i=0; i<this.timeslot.length; i++){
+            timeslotCount[i]= this.timeslot[i];
+        }
+        Arrays.sort(timeslotCount);
+        return timeslotCount[timeslotCount.length-1];
     }
 
     public boolean isConflicted(){
-        for(int i = 0; i<this.timeslot.length; i++){
+        for(int i = 1; i<this.timeslot.length; i++){
             for(int j=i; j<this.timeslot.length; j++){
-                if(timeslot[i] == timeslot[j]){
+                //System.out.println("Course " + i + " timeslot= "+ this.timeslot[i] + " dan " + j + " timeslot= "+ this.timeslot[j]);
+                if(this.timeslot[i] == this.timeslot[j] && i!=j){
                     int course1 = i;
                     int course2 = j;
                     if(this.conflictMatrix[course1][course2]==1){
+                        System.out.println("Course " + course1 + " dan " + course2 + " Konflik");
                         return true;
                     }
                 }
